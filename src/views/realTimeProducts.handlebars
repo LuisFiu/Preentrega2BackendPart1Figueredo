@@ -1,0 +1,57 @@
+<div class="container mt-5">
+    <h1 class="mb-4">Realtime Products (Using Socket)</h1>
+    <h2>Try without socket <a href="/">here</a></h2>
+
+
+    <!-- Add a Product Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Add a Product</h2>
+            <form id="productForm" class="row">
+                <div class="form-group col-md-6">
+                    <input type="text" id="title" class="form-control" placeholder="Title" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <input type="text" id="description" class="form-control" placeholder="Description" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <input type="text" id="code" class="form-control" placeholder="Code" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <input type="number" id="price" class="form-control" placeholder="Price" required>
+                </div>
+                <div class="form-group col-md-4">
+                    <input type="number" id="stock" class="form-control" placeholder="Stock" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <input type="text" id="category" class="form-control" placeholder="Category" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <button type="submit" class="btn btn-primary btn-block">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete a Product Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Delete a Product</h2>
+            <div class="form-row">
+                <div class="col-md-6">
+                    <input type="text" id="deleteProductId" class="form-control mb-2 mr-sm-2"
+                        placeholder="Product ID to Delete">
+                </div>
+                <div class="col-md-6">
+                    <button id="deleteProductBtn" class="btn btn-danger mb-2">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Container -->
+    <div id="productsContainer" class="row"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/realtimeproducts.js"></script>
