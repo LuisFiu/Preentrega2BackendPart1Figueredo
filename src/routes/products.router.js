@@ -1,6 +1,8 @@
 import { Router } from "express";
+import { makeid } from "../utils.js";
 
 import ProductManager from './managers/productManager.js';
+import productModel from "./managers/mongo/models/product.model.js";
 
 const manager = new ProductManager();
 
@@ -10,41 +12,51 @@ router.post('/', async (req, res) => {
 
     const product = req.body;
 
-    if (!product.title || !product.description || !product.code || !product.price) {
+    const newProduct = {
+        title: product.title,
+		description: product.description,
+		code: `${product.title.replace(/\s+/g, '')}_${makeid(6)}`,
+		price: product.price,
+		status: product.status,
+		stock: product.stock,
+		category: product.category,
+    }
+
+    if (!newProduct.title || !newProduct.description || !newProduct.price) {
         return res.status(400).send({ status: "error", error: "Incomplete values" })
     }
 
-    if (typeof product.price !== 'number' || isNaN(product.price)) {
+    if (typeof newProduct.price !== 'number' || isNaN(newProduct.price)) {
         return res.status(400).send({ status: "error", error: "Price isn't a number" });
     }
 
-    if (product.stock == null) {
-        product.stock = 1;
+    if (newProduct.stock == null) {
+        newProduct.stock = 1;
     } else {
-        if (typeof product.stock !== 'number' || isNaN(product.stock) || product.stock < 0) {
+        if (typeof newProduct.stock !== 'number' || isNaN(newProduct.stock) || newProduct.stock < 0) {
             return res.status(400).send({ status: "error", error: "Stock isn't a number or is a negative value" });
         }
     }
 
-    if (product.status == null) {
-        product.status = true
+    if (newProduct.status == null) {
+        newProduct.status = true
     } else {
-        if (typeof product.status !== 'boolean') {
+        if (typeof newProduct.status !== 'boolean') {
             return res.status(400).send({ status: "error", error: "Status isn't true or false" });
         }
     }
 
-    if (product.category == null) {
-        product.category = "Generic"
+    if (newProduct.category == null) {
+        newProduct.category = "Generic"
     } else {
-        if (typeof product.category !== 'string') {
+        if (typeof newProduct.category !== 'string') {
             return res.status(400).send({ status: "error", error: "Category isn't a Text" });
         }
     }
 
     // Usuario envió todo OK se procede a crear el producto
 
-    const result = await manager.createProduct(product)
+    const result = await manager.createProduct(newProduct)
 
     if (result === -1) {
 
@@ -60,25 +72,46 @@ router.post('/', async (req, res) => {
 })
 
 router.get('/', async (req, res) => {
-    const products = await manager.getProducts()
 
-    if (products == null) {
+    const paginationData = await productModel.paginate({},{page:parseInt(req.query.page)||1, limit:5, lean:true});
+    const {hasPrevPage, hasNextPage, prevPage,nextPage, page:currentPage} = paginationData;
+    
+    let prevLink = `?page=${paginationData.prevPage}`;
+
+    let nextLink = `?page=${paginationData.nextPage}`;
+
+    if (paginationData.hasPrevPage === false){
+        prevLink = null;
+    }
+
+    if (paginationData.hasNextPage === false){
+        nextLink = null;
+    }
+
+    const pagination = {
+        totalPages : paginationData.totalPages,
+        prevPage : paginationData.prevPage,
+        nextPage : paginationData.nextPage,
+        page : paginationData.page,
+        hasPrevPage : paginationData.hasPrevPage,
+        hasNextPage : paginationData.hasNextPage,
+        prevLink : prevLink,
+        nextLink : nextLink
+    }
+
+    const products = paginationData.docs
+
+    if (products === -1) {
         return res.status(500).send({ status: "error", error: "Couldn't get Products" })
     } else
 
-        return res.status(200).send({ status: "success", payload: products })
+        return res.status(200).send({ status: "success", payload: products, pagination })
 
 })
 
 router.get('/:id', async (req, res) => {
 
     const productId = req.params.id;
-
-    const parsedProductId = parseInt(productId, 10);
-
-    if (isNaN(parsedProductId)) {
-        return res.status(400).send({ status: "error", message: "Please send a valid Product ID" });
-    }
 
     const result = await manager.getProductById(productId);
 
@@ -96,12 +129,6 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
 
     const productId = req.params.id;
-
-    const parsedProductId = parseInt(productId, 10);
-
-    if (isNaN(parsedProductId)) {
-        return res.status(400).send({ status: "error", message: "Please send a valid Product ID" });
-    }
 
     const updatedValues = req.body;
 

@@ -10,16 +10,6 @@
 		"id": 1
 	},
 	{
-		"title": "iPhone 14 Pro Max",
-		"description": "Liberado - 100% batería",
-		"code": "A123456",
-		"price": 1250,
-		"status": true,
-		"stock": 2,
-		"category": "Mobile Phone",
-		"id": 1
-	},
-	{
 		"title": "iPhone 12 Pro Max",
 		"description": "Liberado - 86% batería",
 		"code": "A564578",
@@ -28,5 +18,15 @@
 		"stock": 5,
 		"category": "Mobile Phone",
 		"id": 2
+	},
+	{
+		"title": "Samsung Galaxy S24 Ultra",
+		"description": "Nuevo - Sellado ",
+		"code": "GALXS24U",
+		"price": 1234,
+		"status": true,
+		"stock": 4,
+		"category": "Mobile Phone",
+		"id": 3
 	}
 ]
